@@ -46,7 +46,7 @@ I made the following observations:
 
 1. `ed25519_dalek::SigningKey::to_scalar` computes `reduce(clamp(sha512(ed25519_sk)[:32]))`. Which results in a valid `x25519` scalar.
 2. `ed25519_dalek::VerifyingKey::to_montgomery` computes `(1+y)/(1-y)` where `y` is the `ed25519` point. Which results in a valid `x25519` point.
-3. Writing the `x25519` scalar to a file, prepended with the X25519 [PKCS8](https://datatracker.ietf.org/doc/html/rfc5208#section-5) header in DER format ([ed25519_pkcs8_der_head]), and using `openssl pkey -inform der -outform der -pubout | tail -c 32` results in a `x25519` point that does not match the one computed by `ed25519_dalek::VerifyingKey::to_montgomery`.
+3. Writing the `x25519` scalar to a file, prepended with the X25519 [PKCS8](https://datatracker.ietf.org/doc/html/rfc5208#section-5) header in DER format ([ed25519_pkcs8_der_head](ed25519_pkcs8_der_head)), and using `openssl pkey -inform der -outform der -pubout | tail -c 32` results in a `x25519` point that does not match the one computed by `ed25519_dalek::VerifyingKey::to_montgomery`.
 4. The product of `Scalar` & `MontgometryPoint` for ECDH results in a valid key share.
 5. Constructing a `x25519::StaticSecret` with the `ed25519` scalar has confusing results - the public key is not the same as any we have observed so far.
 6. Looking at the logic in `curve25519_dalek` and [`libsodium`](https://github.com/jedisct1/libsodium/blob/7e3500e878ee5a3a286705ea646a535b33a29cd3/src/libsodium/crypto_sign/ed25519/ref10/keypair.c#L70), there seems to be a difference in the way the `x25519` scalar is computed.
