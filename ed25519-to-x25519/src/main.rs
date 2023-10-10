@@ -1,10 +1,9 @@
-use curve25519_dalek::scalar::clamp_integer;
+use curve25519_dalek::scalar;
 use ed25519_dalek::SigningKey;
 use sha2::{Digest, Sha512};
 use x25519_dalek::{PublicKey, StaticSecret};
 
 mod hex {
-    pub use hex_literal::hex as decode;
     pub fn encode(bytes: &[u8]) -> String {
         bytes.iter().map(|b| format!("{:02x}", b)).collect()
     }
@@ -12,14 +11,12 @@ mod hex {
 
 fn unreduced_scalar(sk: &SigningKey) -> [u8; 32] {
     let sk: [u8; 32] = Sha512::digest(&sk.to_bytes())[0..32].try_into().unwrap();
-    clamp_integer(sk)
+    scalar::clamp_integer(sk)
 }
 
 fn main() {
     println!("alice");
-    let alice_ed25519_sk = SigningKey::from_bytes(&hex::decode!(
-        "cef91d5a6da1af98d1b64b7d6c52d04eed16b69dff3684a792723e470c01c546"
-    ));
+    let alice_ed25519_sk = SigningKey::generate(&mut rand::thread_rng());
     println!(
         "  {:<25} : {}",
         "ed25519 sk",
@@ -58,9 +55,7 @@ fn main() {
 
     println!("bob");
 
-    let bob_ed25519_sk = SigningKey::from_bytes(&hex::decode!(
-        "f6956818fbb50e2b09c257c2013d479f95a4c36afa40f75de6604041ec21d31f"
-    ));
+    let bob_ed25519_sk = SigningKey::generate(&mut rand::thread_rng());
     println!(
         "  {:<25} : {}",
         "ed25519 sk",
